@@ -1,0 +1,403 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WhereSail — Find your weather window</title>
+  <meta name="description" content="WhereSail is a free sailing weather map. Plot your route, see the wind and waves on every leg, and find your weather window — before you leave the dock." />
+  <meta property="og:title" content="WhereSail — Find your weather window" />
+  <meta property="og:description" content="A free sailing weather map. Plot your route, check wind, waves, swell, current and rain on every leg, and find your weather window." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <style>
+    :root {
+      --navy: #014169;
+      --navy-deep: #00293f;
+      --teal: #03acb4;
+      --ink: #0f2a3d;
+      --muted: #5b6b78;
+      --bg: #ffffff;
+      --bg-soft: #f4f7f9;
+      --line: #dce6ec;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav { display: flex; align-items: center; justify-content: space-between; height: 68px; }
+    .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .brand img { height: 38px; width: auto; display: block; }
+    .brand span { font-size: 22px; font-weight: 800; color: var(--navy); letter-spacing: -0.02em; }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { text-decoration: none; font-size: 15px; font-weight: 600; color: var(--muted); }
+    .nav-links a:hover { color: var(--navy); }
+    .btn {
+      display: inline-block; text-decoration: none; font-weight: 700; font-size: 15px;
+      padding: 11px 22px; border-radius: 999px; transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-teal { background: var(--teal); color: #fff; box-shadow: 0 6px 18px rgba(3, 172, 180, 0.35); }
+    .btn-navy { background: var(--navy); color: #fff; }
+    .btn-ghost { border: 2px solid rgba(255, 255, 255, 0.5); color: #fff; }
+    .btn-sm { padding: 9px 18px; font-size: 14px; }
+
+    /* Hero */
+    .hero { background: linear-gradient(180deg, var(--navy) 0%, var(--navy-deep) 100%); color: #fff; padding: 84px 0 96px; overflow: hidden; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 56px; align-items: center; }
+    .eyebrow {
+      display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--teal); margin-bottom: 18px;
+    }
+    .hero h1 { font-size: 58px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 800; margin-bottom: 20px; }
+    .hero h1 em { font-style: normal; color: var(--teal); }
+    .hero p.lede { font-size: 19px; line-height: 1.6; color: rgba(255, 255, 255, 0.85); max-width: 520px; margin-bottom: 32px; }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-note { margin-top: 18px; font-size: 13px; color: rgba(255, 255, 255, 0.55); }
+
+    .hero-visual { position: relative; }
+    .map-panel {
+      border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+      background: #042f4b;
+    }
+    .map-panel svg { display: block; width: 100%; height: auto; }
+    .float-card {
+      position: absolute; background: #fff; color: var(--ink); border-radius: 12px;
+      padding: 12px 16px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35); font-size: 14px; line-height: 1.45;
+    }
+    .float-card b { display: block; font-size: 13px; color: var(--muted); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+    .float-card .big { font-size: 17px; font-weight: 800; color: var(--navy); }
+    .float-card .ok { color: var(--teal); font-weight: 800; }
+    .fc-window { top: 18px; right: -8px; }
+    .fc-leg { bottom: 20px; left: -12px; }
+
+    /* Sections */
+    section { padding: 84px 0; }
+    .section-head { max-width: 640px; margin-bottom: 48px; }
+    .section-head h2 { font-size: 36px; line-height: 1.15; letter-spacing: -0.02em; color: var(--navy); margin-bottom: 12px; }
+    .section-head p { font-size: 18px; color: var(--muted); }
+    .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
+
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .card {
+      border: 1px solid var(--line); border-radius: var(--radius); padding: 28px;
+      background: #fff; transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .card:hover { box-shadow: 0 14px 36px rgba(1, 65, 105, 0.10); transform: translateY(-2px); }
+    .card .num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 12px; background: var(--bg-soft);
+      color: var(--teal); font-size: 22px; font-weight: 800; margin-bottom: 16px;
+    }
+    .card h3 { font-size: 20px; color: var(--navy); margin-bottom: 8px; letter-spacing: -0.01em; }
+    .card p { font-size: 15.5px; color: var(--muted); }
+    .card .say { margin-top: 14px; font-size: 15px; color: var(--ink); font-style: italic; border-top: 1px solid var(--line); padding-top: 14px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
+    .step { position: relative; padding: 8px 4px 0 64px; }
+    .step::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; left: 0; top: 0;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--navy); color: #fff; font-weight: 800; font-size: 19px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step h3 { font-size: 19px; color: var(--navy); margin-bottom: 6px; }
+    .step p { font-size: 15.5px; color: var(--muted); }
+
+    .layers { display: flex; flex-wrap: wrap; gap: 12px; }
+    .layer {
+      border: 1px solid var(--line); border-radius: 999px; padding: 10px 20px;
+      font-size: 15px; font-weight: 700; color: var(--navy); background: #fff;
+    }
+    .layer small { color: var(--muted); font-weight: 600; }
+    .soft { background: var(--bg-soft); }
+
+    .data-note {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start;
+      border: 1px solid var(--line); border-radius: var(--radius); padding: 36px; background: #fff;
+    }
+    .data-note h3 { font-size: 22px; color: var(--navy); margin-bottom: 10px; }
+    .data-note p { color: var(--muted); font-size: 16px; }
+    .data-note ul { list-style: none; }
+    .data-note li { padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 16px; }
+    .data-note li:last-child { border-bottom: none; }
+    .data-note li b { color: var(--navy); }
+
+    .faq { max-width: 760px; }
+    .faq-item { border-bottom: 1px solid var(--line); padding: 20px 0; }
+    .faq-item h3 { font-size: 18px; color: var(--navy); margin-bottom: 6px; }
+    .faq-item p { color: var(--muted); font-size: 16px; }
+
+    .cta-band {
+      background: var(--teal); color: #fff; border-radius: 24px; padding: 56px 48px;
+      text-align: center;
+    }
+    .cta-band h2 { font-size: 38px; letter-spacing: -0.02em; margin-bottom: 12px; }
+    .cta-band p { font-size: 18px; color: rgba(255, 255, 255, 0.9); margin-bottom: 28px; }
+    .cta-band .btn { background: #fff; color: var(--navy); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18); }
+
+    footer { background: var(--navy-deep); color: rgba(255, 255, 255, 0.75); padding: 56px 0 32px; }
+    .foot-grid { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; }
+    .foot-brand img { height: 56px; width: auto; display: block; margin-bottom: 14px; }
+    .foot-brand p { font-size: 15px; max-width: 340px; }
+    .foot-links h4 { color: #fff; font-size: 14px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+    .foot-links a { display: block; text-decoration: none; font-size: 15px; padding: 4px 0; color: rgba(255, 255, 255, 0.75); }
+    .foot-links a:hover { color: #fff; }
+    .foot-bottom { margin-top: 44px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.14); font-size: 13px; color: rgba(255, 255, 255, 0.5); }
+
+    @media (max-width: 900px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+      .hero h1 { font-size: 42px; }
+      .cards, .steps { grid-template-columns: 1fr; }
+      .data-note { grid-template-columns: 1fr; }
+      .nav-links a { display: none; }
+      section { padding: 60px 0; }
+      .fc-window { right: 8px; }
+      .fc-leg { left: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="#">
+        <img src="assets/logo-mark.svg" alt="WhereSail mark" />
+        <span>WhereSail</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#data">Data</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn btn-navy btn-sm" href="app/">Open the map</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Free sailing weather map</span>
+        <h1>Find your <em>weather window.</em></h1>
+        <p class="lede">WhereSail is a free weather map built for sailors. Plot your route, see the wind and waves on every leg, and find your weather window — before you leave the dock.</p>
+        <div class="hero-cta">
+          <a class="btn btn-teal" href="app/">Open the live map</a>
+          <a class="btn btn-ghost" href="#how">How it works</a>
+        </div>
+        <p class="hero-note">Free. No account needed. Built on open data.</p>
+      </div>
+      <div class="hero-visual">
+        <div class="map-panel">
+          <svg viewBox="0 0 560 420" role="img" aria-label="Stylised sailing weather map with a route">
+            <defs>
+              <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#05395c" />
+                <stop offset="1" stop-color="#032a45" />
+              </linearGradient>
+              <clipPath id="panel"><rect x="0" y="0" width="560" height="420" rx="20" /></clipPath>
+            </defs>
+            <rect width="560" height="420" fill="url(#sea)" />
+            <g clip-path="url(#panel)" opacity="0.5" stroke="#7fb3cc" stroke-width="1" fill="none">
+              <path d="M-40 90 H600" /><path d="M-40 170 H600" /><path d="M-40 250 H600" /><path d="M-40 330 H600" />
+              <path d="M90 -40 V460" /><path d="M190 -40 V460" /><path d="M290 -40 V460" /><path d="M390 -40 V460" /><path d="M490 -40 V460" />
+            </g>
+            <g clip-path="url(#panel)" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.55">
+              <circle cx="280" cy="640" r="300" />
+              <circle cx="280" cy="640" r="380" />
+              <circle cx="280" cy="640" r="460" />
+            </g>
+            <g clip-path="url(#panel)" fill="none" stroke="#03acb4" stroke-width="2.5" opacity="0.9">
+              <circle cx="280" cy="640" r="340" />
+            </g>
+            <path d="M70 320 C 180 260, 260 300, 330 210 S 460 120, 500 90"
+                  fill="none" stroke="#03acb4" stroke-width="3" stroke-dasharray="10 8" stroke-linecap="round" />
+            <g fill="#ffffff">
+              <circle cx="70" cy="320" r="7" /><circle cx="330" cy="210" r="7" /><circle cx="500" cy="90" r="7" />
+            </g>
+            <g fill="#03acb4">
+              <circle cx="70" cy="320" r="3" /><circle cx="330" cy="210" r="3" /><circle cx="500" cy="90" r="3" />
+            </g>
+            <g transform="translate(478 58)">
+              <path d="M0 26 L14 26 L7 0 Z" fill="#ffffff" />
+              <path d="M7 26 L7 34" stroke="#ffffff" stroke-width="2.5" />
+              <path d="M0 34 Q7 40 14 34" fill="none" stroke="#ffffff" stroke-width="2.5" />
+            </g>
+            <text x="84" y="346" fill="#ffffff" font-size="15" font-weight="700" font-family="sans-serif">Start</text>
+            <text x="344" y="236" fill="#ffffff" font-size="15" font-weight="700" font-family="sans-serif">WP1</text>
+          </svg>
+        </div>
+        <div class="float-card fc-window">
+          <b>Ideal window</b>
+          <span class="big">18:00 · 16 kts NNE</span><br />
+          <span class="ok">Window opens at 18:00</span>
+        </div>
+        <div class="float-card fc-leg">
+          <b>Leg 2 · 42 nm</b>
+          <span class="big">14 kts · 1.2 m swell</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Plan the window, not just the route.</h2>
+        <p>The best passage is sailed in the right window. WhereSail shows you when to go — not just where.</p>
+      </div>
+      <div class="cards">
+        <div class="card">
+          <div class="num">◐</div>
+          <h3>Find your weather window</h3>
+          <p>The route planner and forecast timeline show the hours when wind, waves and visibility all agree with your plan.</p>
+          <p class="say">“The window opens at 18:00. That is when you go.”</p>
+        </div>
+        <div class="card">
+          <div class="num">▦</div>
+          <h3>Every layer a sailor needs, one map</h3>
+          <p>Wind, waves, swell, current, sea temperature and rain — together on one map. No tab-hopping between five apps.</p>
+          <p class="say">“Wind, waves, swell, current, rain. One map.”</p>
+        </div>
+        <div class="card">
+          <div class="num">✦</div>
+          <h3>Real data, free, no account</h3>
+          <p>The basics are free and need no login. Sources are named, limits are stated — model data is guidance, not gospel.</p>
+          <p class="say">“Free. No account. Built on open data.”</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how" class="soft">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>How it works</h2>
+        <p>Three steps between you and a good decision.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <h3>Plot your route</h3>
+          <p>Click waypoints on the map. The route is drawn leg by leg, with distance and estimated time at your boat speed.</p>
+        </div>
+        <div class="step">
+          <h3>Check every leg</h3>
+          <p>Wind, waves and swell for each leg — not just at departure. A 25-knot headwind on leg three changes the whole day.</p>
+        </div>
+        <div class="step">
+          <h3>Sail the window</h3>
+          <p>Slide the forecast timeline and find the hours when conditions agree with your plan. Then decide.</p>
+        </div>
+      </div>
+      <div style="margin-top: 44px;">
+        <div class="section-head" style="margin-bottom: 20px;">
+          <h2 style="font-size: 26px;">Layers on the map</h2>
+        </div>
+        <div class="layers">
+          <span class="layer">Wind <small>· particles + speed</small></span>
+          <span class="layer">Waves <small>· height + direction</small></span>
+          <span class="layer">Swell <small>· period + direction</small></span>
+          <span class="layer">Current <small>· speed + direction</small></span>
+          <span class="layer">Sea temperature</span>
+          <span class="layer">Rain</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="data">
+    <div class="wrap">
+      <div class="data-note">
+        <div>
+          <h3>Built on open data</h3>
+          <p>WhereSail runs on free, open forecast data — no keys, no paywall for the basics. Every layer names its source, and the map says plainly what it is: model guidance for planning, not a navigation chart and not an official forecast.</p>
+        </div>
+        <ul>
+          <li><b>Open-Meteo</b> — forecast &amp; marine APIs</li>
+          <li><b>GFS</b> — global weather model</li>
+          <li><b>Copernicus Marine</b> — ocean data</li>
+          <li><b>Built by a meteorologist</b>, for sailors</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="wrap faq">
+      <div class="section-head">
+        <h2>Questions</h2>
+      </div>
+      <div class="faq-item">
+        <h3>Is it really free?</h3>
+        <p>Yes. The map, the layers, the route planner and the 48-hour point forecast are free, with no account.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Do I need an account?</h3>
+        <p>No. Open the map and sail — nothing to sign up for.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Is it a navigation chart?</h3>
+        <p>No. WhereSail is a weather planning map. It shows forecast conditions, not depths, hazards or official navigation data. Always cross-check with official forecasts and charts before you go.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Where does the data come from?</h3>
+        <p>Open forecast models — GFS via Open-Meteo and Copernicus Marine. Models are guidance, not gospel: conditions at sea can differ from the model, especially near the coast.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top: 0;">
+    <div class="wrap">
+      <div class="cta-band">
+        <h2>Find your weather window.</h2>
+        <p>Plot your route. Check every leg. Sail when the weather agrees.</p>
+        <a class="btn" href="app/">Open the live map</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <img src="assets/logo-white.svg" alt="WhereSail" />
+          <p>Sailing weather, mapped. Built by a meteorologist, for sailors.</p>
+        </div>
+        <div class="foot-links">
+          <h4>Product</h4>
+          <a href="app/">Live map demo</a>
+          <a href="#features">Features</a>
+          <a href="#how">How it works</a>
+          <a href="#faq">FAQ</a>
+        </div>
+        <div class="foot-links">
+          <h4>More</h4>
+          <a href="https://github.com/satrijo/wheresail" target="_blank" rel="noopener">GitHub — source code</a>
+          <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
+          <a href="https://marine.copernicus.eu/" target="_blank" rel="noopener">Copernicus Marine</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        © 2026 WhereSail. A portfolio demo — not a navigation aid. Always cross-check official forecasts before sailing.
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
