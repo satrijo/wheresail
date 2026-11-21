@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WhereSail — Sailing weather, mapped</title>
+    <meta
+      name="description"
+      content="WhereSail is an interactive maritime weather map for sailors: live wind, waves, rain and temperature, 48-hour point forecasts and route weather planning. Data: Open-Meteo."
+    />
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar">
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+            <circle cx="16" cy="16" r="14" fill="none" stroke="#0b6fa4" stroke-width="2" />
+            <path d="M16 6 L20 16 L16 26 L12 16 Z" fill="#0b6fa4" />
+            <path d="M16 6 L16 26" stroke="#fff" stroke-width="1" />
+          </svg>
+          <div class="brand-text">
+            <span class="brand-name">WhereSail</span>
+            <span class="brand-tagline">Sailing weather, mapped</span>
+          </div>
+        </div>
+
+        <div class="layer-group" role="group" aria-label="Weather layer">
+          <button class="layer-btn active" data-layer="wind" type="button">Wind</button>
+          <button class="layer-btn" data-layer="waves" type="button">Waves</button>
+          <button class="layer-btn" data-layer="rain" type="button">Rain</button>
+          <button class="layer-btn" data-layer="temp" type="button">Temperature</button>
+        </div>
+
+        <div class="top-controls">
+          <label class="speed-control" title="Planned boat speed used for route ETAs">
+            Boat
+            <input id="speed-range" type="range" min="4" max="10" step="0.5" value="6" />
+            <span id="speed-value">6.0 kn</span>
+          </label>
+          <button id="route-toggle" type="button" aria-pressed="false">Route</button>
+          <button id="clear-route" type="button" disabled>Clear route</button>
+          <button id="status-pill" class="status loading" type="button" title="Data status — click to retry">
+            Loading data…
+          </button>
+        </div>
+      </header>
+
+      <div id="map-wrap">
+        <div id="map"></div>
+        <canvas id="layer-canvas"></canvas>
+        <canvas id="particle-canvas"></canvas>
+
+        <div id="legend" class="card">
+          <div id="legend-label">Wind speed</div>
+          <div id="legend-gradient"></div>
+          <div class="legend-scale">
+            <span id="legend-min">0 kn</span>
+            <span id="legend-max">50 kn</span>
+          </div>
+        </div>
+
+        <div id="coords" class="card">—</div>
+
+        <aside id="panel" class="card hidden" aria-live="polite">
+          <button id="panel-close" type="button" aria-label="Close panel">×</button>
+          <div id="panel-content"></div>
+        </aside>
+      </div>
+
+      <footer id="timeline-bar">
+        <button id="play-btn" type="button" aria-label="Play forecast animation">▶</button>
+        <input id="timeline" type="range" min="0" max="47" step="1" value="0" disabled />
+        <span id="time-label">—</span>
+        <span id="data-note">Wind: GFS · Waves: ICON · via Open-Meteo (free, no key)</span>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
