@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1200" width="1200" height="1200">
+<defs><clipPath id="sailClip"><path d="M 800 210 C 700 380, 640 540, 640 720 C 800 720, 950 690, 1060 640 C 1010 480, 920 320, 800 210 Z"/></clipPath></defs>
+<g transform="translate(-260,50)">
+<g clip-path="url(#sailClip)">
+<circle cx="800" cy="1600" r="900" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+<circle cx="800" cy="1600" r="1000" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+<circle cx="800" cy="1600" r="1150" fill="none" stroke="#03ACB4" stroke-width="13"/>
+<circle cx="800" cy="1600" r="1200" fill="none" stroke="#FFFFFF" stroke-width="12"/>
+</g>
+<path d="M 800 210 C 700 380, 640 540, 640 720 C 800 720, 950 690, 1060 640 C 1010 480, 920 320, 800 210 Z" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linejoin="round"/>
+<path d="M 600 790 C 800 800, 1000 780, 1120 730 C 1080 830, 950 890, 800 895 C 700 890, 620 850, 600 790 Z" fill="#FFFFFF"/>
+</g>
+</svg>
