@@ -4,7 +4,7 @@ An interactive maritime weather map for sailors — Windy-like, but focused on
 sailing. A portfolio demo: the map really works with live data, the code is
 clean and public-ready.
 
-**Live demo:** not deployed yet (local prototype).
+**Live demo:** https://wheresail.pages.dev
 **Stack:** TypeScript + Vite (vanilla, no heavy framework) + MapLibre GL JS.
 **Data:** Open-Meteo Forecast API (GFS wind/temperature/rain) and Marine API
 (ICON waves), both free and keyless.
