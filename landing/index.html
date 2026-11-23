@@ -21,7 +21,21 @@
     text-align: center;
     overflow: hidden;
     position: relative;
-    padding: 2rem 1.5rem;
+    padding: 3rem 2rem;
+  }
+  /* Teal hairline frame, echoing the business card */
+  .frame {
+    position: absolute;
+    inset: 22px;
+    border: 1px solid rgba(3, 172, 180, 0.45);
+    pointer-events: none;
+  }
+  .frame::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    pointer-events: none;
   }
   .arcs {
     position: absolute;
@@ -35,59 +49,81 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.75rem;
   }
   .logo {
-    width: min(300px, 64vw);
+    width: min(248px, 58vw);
     height: auto;
     display: block;
   }
   h1 {
-    font-size: clamp(2rem, 6vw, 3rem);
-    font-weight: 300;
-    letter-spacing: 0.14em;
+    margin-top: 3.25rem;
+    font-size: clamp(0.95rem, 2.4vw, 1.2rem);
+    font-weight: 200;
+    letter-spacing: 0.5em;
+    text-indent: 0.5em;
     text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.92);
   }
   .rule {
-    width: 64px;
-    height: 2px;
+    margin-top: 1.5rem;
+    width: 44px;
+    height: 1px;
     background: #03acb4;
     border: 0;
   }
   p {
-    font-size: clamp(1rem, 2.6vw, 1.15rem);
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.78);
-    max-width: 26rem;
+    margin-top: 1.5rem;
+    font-size: clamp(0.92rem, 2.2vw, 1.02rem);
+    font-weight: 300;
+    line-height: 1.8;
+    letter-spacing: 0.02em;
+    color: rgba(255, 255, 255, 0.68);
+    max-width: 24rem;
   }
   footer {
     position: absolute;
-    bottom: 1.5rem;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
-    color: rgba(255, 255, 255, 0.5);
+    bottom: 2.5rem;
+    font-size: 0.68rem;
+    font-weight: 300;
+    letter-spacing: 0.28em;
+    text-indent: 0.28em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.42);
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .logo { animation: rise 1.1s ease both; }
+  h1 { animation: rise 1.1s ease 0.15s both; }
+  .rule { animation: rise 1.1s ease 0.3s both; }
+  p { animation: rise 1.1s ease 0.45s both; }
+  footer { animation: rise 1.1s ease 0.6s both; }
+  @media (prefers-reduced-motion: reduce) {
+    .logo, h1, .rule, p, footer { animation: none; }
   }
 </style>
 </head>
 <body>
+  <div class="frame" aria-hidden="true"></div>
   <svg class="arcs" viewBox="0 0 100 100" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-    <g fill="none" stroke="#03acb4" stroke-width="0.25">
-      <circle cx="50" cy="118" r="52" opacity="0.28"/>
-      <circle cx="50" cy="118" r="62" opacity="0.20"/>
-      <circle cx="50" cy="118" r="72" opacity="0.14"/>
-      <circle cx="50" cy="118" r="82" opacity="0.10"/>
+    <g fill="none" stroke="#03acb4" stroke-width="0.22">
+      <circle cx="50" cy="118" r="52" opacity="0.20"/>
+      <circle cx="50" cy="118" r="62" opacity="0.14"/>
+      <circle cx="50" cy="118" r="72" opacity="0.09"/>
+      <circle cx="50" cy="118" r="82" opacity="0.06"/>
     </g>
-    <g fill="none" stroke="#ffffff" stroke-width="0.2">
-      <circle cx="50" cy="118" r="57" opacity="0.12"/>
-      <circle cx="50" cy="118" r="67" opacity="0.08"/>
-      <circle cx="50" cy="118" r="77" opacity="0.06"/>
+    <g fill="none" stroke="#ffffff" stroke-width="0.18">
+      <circle cx="50" cy="118" r="57" opacity="0.08"/>
+      <circle cx="50" cy="118" r="67" opacity="0.05"/>
+      <circle cx="50" cy="118" r="77" opacity="0.04"/>
     </g>
   </svg>
   <main>
     <img class="logo" src="assets/logo-white.svg" alt="WhereSail — Find your weather window">
     <h1>Coming soon</h1>
     <hr class="rule">
-    <p>A free sailing weather map. We&rsquo;re charting the course &mdash; check back soon.</p>
+    <p>A free sailing weather map.<br>We&rsquo;re charting the course &mdash; check back soon.</p>
   </main>
   <footer>&copy; 2026 WhereSail</footer>
 </body>
